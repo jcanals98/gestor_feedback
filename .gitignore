@@ -1,0 +1,13 @@
+# Entorno virtual (opcional si está dentro del proyecto)
+.venv/
+
+# Archivos sensibles
+.env
+
+# Archivos de bases de datos locales
+*.sqlite
+*.db
+
+# Archivos de Python generados
+__pycache__/
+*.pyc
