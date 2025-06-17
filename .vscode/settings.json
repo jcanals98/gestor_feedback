@@ -1,0 +1,12 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": "gestor_feedback/feedback.db",
+            "name": "FeedbackDB",
+            "group": "local"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}
