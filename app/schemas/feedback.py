@@ -5,11 +5,11 @@ from datetime import datetime
 class FeedbackIn(BaseModel):
     autor: str
     comentario: str
-    fecha: Optional[str] = None 
+    fecha: Optional[datetime] = None 
 
 class FeedbackOut(BaseModel):
     sentimiento: str
-    etiquetas: List[str]
+    etiquetas: List[datetime]
     resumen: str
 
 class FeedbackDB(BaseModel):
@@ -28,4 +28,4 @@ class FeedbackDB(BaseModel):
         return v
 
     class Config:
-        orm_mode = True  # Esto es necesario para usar objetos SQLAlchemy como respuesta
+        from_attributes = True  # Esto es necesario para usar objetos SQLAlchemy como respuesta

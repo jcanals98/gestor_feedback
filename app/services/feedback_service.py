@@ -4,17 +4,14 @@ from datetime import datetime
 from typing import List
 
 
-def guardar_feedback(db: Session, autor: str, comentario: str, fecha: str, sentimiento: str, etiquetas: list[str], resumen: str):
+def guardar_feedback(db: Session, autor: str, comentario: str, fecha: datetime, sentimiento: str, etiquetas: list[str], resumen: str):
     
-    etiquetas_str= ", ".join(etiquetas) # Convertir lista a texto
-    fecha_dt = datetime.fromisoformat(fecha) if fecha else datetime.utcnow()
-
     nuevo_feedback = Feedback(
         autor=autor,
         comentario=comentario,
-        fecha=fecha_dt,
+        fecha=fecha,
         sentimiento=sentimiento,
-        etiquetas=etiquetas_str,
+        etiquetas=",".join(etiquetas), # Convertir lista a texto
         resumen=resumen
     )
 
