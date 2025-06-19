@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api import feedback
+from app.api import feedback, metrics
 from app.db.init_db import init_db
 
 
@@ -9,6 +9,7 @@ app = FastAPI(
 )
 
 app.include_router(feedback.router, prefix="/feedback", tags=["Feedback"])
+app.include_router(metrics.router, prefix="/metrics", tags=["Metrics"])
 
 init_db()  # Crea la tabla si no existe
 

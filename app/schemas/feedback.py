@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, ConfigDict, field_validator
 from typing import Optional, List
 from datetime import datetime
 
@@ -21,11 +21,11 @@ class FeedbackDB(BaseModel):
     etiquetas: List[str]
     resumen: str
 
-    @validator("etiquetas", pre=True)
+    @field_validator("etiquetas", mode="before")
     def convertir_etiquetas(cls, v):
         if isinstance(v, str):
             return [e.strip() for e in v.split(",")]
         return v
 
-    class Config:
-        from_attributes = True  # Esto es necesario para usar objetos SQLAlchemy como respuesta
+  
+    model_config = ConfigDict(from_attributes=True)# Esto es necesario para usar objetos SQLAlchemy como respuesta
