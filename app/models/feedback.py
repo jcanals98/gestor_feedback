@@ -1,8 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.orm import declarative_base
 from datetime import datetime
-
-Base = declarative_base()
+from app.db.base_class import Base  # ← Importas el Base global
 
 class Feedback(Base):
     __tablename__ = "feedback"

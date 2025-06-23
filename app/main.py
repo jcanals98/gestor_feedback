@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from app.api import feedback, metrics
+from app.api import feedback, metrics, auth
 from app.db.init_db import init_db
 
-
+# uvicorn app.main:app --reload
 app = FastAPI(
     title="Gestor de Feedback Inteligente",
     description="API para recibir, analizar y consultar feedback con IA."
@@ -10,6 +10,7 @@ app = FastAPI(
 
 app.include_router(feedback.router, prefix="/feedback", tags=["Feedback"])
 app.include_router(metrics.router, prefix="/metrics", tags=["Metrics"])
+app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 
 init_db()  # Crea la tabla si no existe
 

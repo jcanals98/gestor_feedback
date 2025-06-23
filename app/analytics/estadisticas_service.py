@@ -5,7 +5,7 @@ from datetime import datetime
 from app.models.feedback import Feedback
 from app.db.session import SessionLocal
 import pandas
-from app.utils import model_to_dict_feedback
+from app.utils.utils import model_to_dict_feedback
 
 
 def get_db():
