@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime
 
+from app.models.user import User
+from app.utils.dependencies import get_current_user  
 from app.ai.openai_client import analizar_feedback_con_ia
 from app.schemas.feedback import FeedbackIn, FeedbackOut, FeedbackDB
 from app.services.feedback_service import guardar_feedback
@@ -20,7 +22,7 @@ def get_db():
         db.close()
 
 @router.post("/", response_model = FeedbackDB)
-async def root(feedback : FeedbackIn, db: Session = Depends(get_db)):
+async def root(feedback : FeedbackIn, db: Session = Depends(get_db)): #user: User = Depends(get_current_user)
 
     analisis  = await analizar_feedback_con_ia(feedback.comentario)
 
@@ -40,5 +42,5 @@ async def root(feedback : FeedbackIn, db: Session = Depends(get_db)):
     return nuevo_feedback
 
 @router.get("/", response_model=List[FeedbackDB])
-async def listar_feedbacks(db: Session = Depends(get_db)):
+async def listar_feedbacks(db: Session = Depends(get_db)): #user: User = Depends(get_current_user)
     return obtener_todos_los_feedbacks(db)
