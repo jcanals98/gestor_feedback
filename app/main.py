@@ -2,7 +2,11 @@ from fastapi import FastAPI
 from app.api import feedback, metrics, auth
 from app.db.init_db import init_db
 
+# deactivate
+# .venv\Scripts\activate
 # uvicorn app.main:app --reload
+
+
 app = FastAPI(
     title="Gestor de Feedback Inteligente",
     description="API para recibir, analizar y consultar feedback con IA."

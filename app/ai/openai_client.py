@@ -49,3 +49,4 @@ async def analizar_feedback_con_ia(comentario: str) -> dict:
             "etiquetas": [],
             "resumen": "No se pudo procesar el comentario."
         }
+

@@ -23,3 +23,5 @@ def model_to_dict_feedback(feedbacks: list):
         lista_dicts_feedback.append(feedback_dict)
 
     return lista_dicts_feedback
+
+
