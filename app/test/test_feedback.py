@@ -3,7 +3,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 from fastapi.testclient import TestClient
-from app.main import app  # Importa tu FastAPI
+from app.main import app  
 
 # Creamos el cliente de prueba con la app
 client = TestClient(app)
@@ -32,3 +32,5 @@ def test_crear_feedback():
     assert "sentimiento" in data
     assert "resumen" in data
     assert "etiquetas" in data
+
+

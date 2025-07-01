@@ -12,3 +12,4 @@ class Feedback(Base):
     sentimiento = Column(String, nullable=False)
     etiquetas = Column(String)
     resumen = Column(String)
+    respuesta = Column(String, nullable=True)

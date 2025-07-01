@@ -50,3 +50,23 @@ async def analizar_feedback_con_ia(comentario: str) -> dict:
             "resumen": "No se pudo procesar el comentario."
         }
 
+
+def generar_respuesta_educada(comentario: str) -> str:
+    prompt = f"""
+        Eres un asistente profesional de RRHH. Responde con educación y empatía a este comentario negativo de un empleado.
+        No seas defensivo ni uses lenguaje corporativo vacío. Sé claro, humano y constructivo.
+
+        Comentario del empleado:
+        {comentario}"""
+
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "Eres especializta en tratar temas delicados con mucha educacion y empatia en un departamente de atencion al cliente."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.5,
+        max_tokens=200
+    )
+
+    return response.choices[0].message.content.strip()
