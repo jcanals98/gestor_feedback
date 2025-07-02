@@ -21,6 +21,8 @@ class FeedbackDB(BaseModel):
     etiquetas: List[str]
     resumen: str
     respuesta: Optional[str]
+    sugerencia: Optional[str]
+    urgencia: Optional[str]
 
     @field_validator("etiquetas", mode="before")
     def convertir_etiquetas(cls, v):

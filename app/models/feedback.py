@@ -13,3 +13,5 @@ class Feedback(Base):
     etiquetas = Column(String)
     resumen = Column(String)
     respuesta = Column(String, nullable=True)
+    sugerencia = Column(String, nullable=True)
+    urgencia = Column(String, nullable=True)
