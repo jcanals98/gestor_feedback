@@ -12,6 +12,17 @@ class FeedbackOut(BaseModel):
     etiquetas: List[datetime]
     resumen: str
 
+class FeedbackUpdate(BaseModel):
+    autor: Optional[str] = None
+    comentario: Optional[str] = None
+    fecha: Optional[datetime] = None
+    sentimiento: Optional[str] = None
+    etiquetas: Optional[List[str]] = None
+    resumen: Optional[str] = None
+    respuesta: Optional[str] = None
+    sugerencia: Optional[str] = None
+    urgencia: Optional[str] = None
+
 class FeedbackDB(BaseModel):
     id: int
     autor: str

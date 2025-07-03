@@ -1,7 +1,6 @@
-from typing import List
-from datetime import datetime
+from typing import List, Optional
+from datetime import datetime, time, date
 from sqlalchemy.orm import Session
-
 from app.models.feedback import Feedback
 from app.ai.openai_client import (
     generar_respuesta_educada,
@@ -12,8 +11,12 @@ from app.ai.openai_client import (
 )
 from app.db.session import SessionLocal
 
-# Guarda un nuevo registro de feedback con análisis IA ya procesado
-def guardar_feedback(db: Session, autor: str, comentario: str, fecha: datetime, sentimiento: str, etiquetas: list[str], resumen: str):
+# --- CRUD BÁSICO ---
+
+def guardar_feedback(db: Session, autor: str, comentario: str, fecha: datetime, sentimiento: str, etiquetas: list[str], resumen: str) -> Feedback:
+    """
+    Guarda un nuevo feedback con análisis IA.
+    """
     nuevo_feedback = Feedback(
         autor=autor,
         comentario=comentario,
@@ -27,16 +30,60 @@ def guardar_feedback(db: Session, autor: str, comentario: str, fecha: datetime, 
     db.refresh(nuevo_feedback)
     return nuevo_feedback
 
-# Devuelve todos los registros de feedback ordenados por fecha descendente
+
 def obtener_todos_los_feedbacks(db: Session) -> List[Feedback]:
+    """
+    Devuelve todos los feedbacks ordenados por fecha descendente.
+    """
     return db.query(Feedback).order_by(Feedback.fecha.desc()).all()
 
-# Busca un feedback por ID
+
 def buscar_feedback_por_id(feedback_id: int, db: Session) -> Feedback:
+    """
+    Busca un feedback por su ID.
+    """
     return db.query(Feedback).filter(Feedback.id == feedback_id).first()
 
-# Genera una respuesta educada a un comentario negativo (y la guarda)
+
+def actualizar_feedback_parcial(feedback_id: int, datos_actualizados: dict) -> Feedback:
+    """
+    Actualiza parcialmente un feedback (solo los campos enviados).
+    """
+    db = SessionLocal()
+    feedback = db.query(Feedback).filter(Feedback.id == feedback_id).first()
+
+    if not feedback:
+        raise ValueError("Feedback no encontrado")
+
+    for campo, valor in datos_actualizados.items():
+        if hasattr(feedback, campo) and valor is not None:
+            setattr(feedback, campo, valor)
+
+    db.commit()
+    db.refresh(feedback)
+    return feedback
+
+
+def eliminar_feedback(feedback_id: int) -> None:
+    """
+    Elimina un feedback por su ID.
+    """
+    db = SessionLocal()
+    feedback = db.query(Feedback).filter(Feedback.id == feedback_id).first()
+
+    if not feedback:
+        raise ValueError("Feedback no encontrado")
+
+    db.delete(feedback)
+    db.commit()
+
+
+# --- FUNCIONES IA ---
+
 def generar_respuesta_para_feedback(feedback_id: int) -> str:
+    """
+    Genera y guarda una respuesta empática a un comentario negativo.
+    """
     db = SessionLocal()
     feedback = db.query(Feedback).filter(Feedback.id == feedback_id).first()
 
@@ -53,8 +100,11 @@ def generar_respuesta_para_feedback(feedback_id: int) -> str:
 
     return respuesta
 
-# Genera una sugerencia concreta para el feedback (y la guarda)
+
 def generar_sugerencia_para_feedback(feedback_id: int) -> str:
+    """
+    Genera y guarda una sugerencia concreta para un feedback.
+    """
     db = SessionLocal()
     feedback = db.query(Feedback).filter(Feedback.id == feedback_id).first()
 
@@ -71,8 +121,11 @@ def generar_sugerencia_para_feedback(feedback_id: int) -> str:
 
     return sugerencia
 
-# Analiza si el comentario es tóxico y por qué
+
 def detectar_feedback_toxico(feedback_id: int) -> dict:
+    """
+    Analiza si un comentario es tóxico y devuelve el resultado.
+    """
     db = SessionLocal()
     feedback = db.query(Feedback).filter(Feedback.id == feedback_id).first()
 
@@ -81,13 +134,17 @@ def detectar_feedback_toxico(feedback_id: int) -> dict:
 
     return analizar_toxicidad_comentario(feedback.comentario)
 
+
 def clasificar_urgencia_feedback(feedback_id: int) -> str:
+    """
+    Clasifica la urgencia de un feedback (urgente, normal, baja) y la guarda.
+    """
     db = SessionLocal()
     feedback = db.query(Feedback).filter(Feedback.id == feedback_id).first()
 
     if not feedback:
         raise ValueError("Feedback no encontrado")
-    
+
     urgencia = clasificar_nivel_urgencia(feedback.comentario)
     feedback.urgencia = urgencia
     db.commit()
@@ -95,31 +152,17 @@ def clasificar_urgencia_feedback(feedback_id: int) -> str:
 
     return urgencia
 
+
 def detectar_cambios_sentimiento(autor: str, db: Session) -> dict:
+    """
+    Analiza los cambios de sentimiento de un autor a lo largo del tiempo.
+    """
     feedbacks = db.query(Feedback).filter(Feedback.autor == autor).order_by(Feedback.fecha.asc()).all()
 
     if not feedbacks:
         raise ValueError("No se encontraron feedbacks para este autor.")
-    
-    """
-        historial = [f.sentimiento for f in feedbacks]
-
-        cambios_detectados = any(historial[i] != historial[i + 1] for i in range(len(historial) - 1))
-
-        conclusion = ""
-        if not cambios_detectados:
-            conclusion = "No se detectan cambios de sentimiento."
-        elif historial[-1] == "negativo":
-            conclusion = "El sentimiento ha empeorado con el tiempo."
-        elif historial[0] == "negativo" and historial[-1] == "positivo":
-            conclusion = "El sentimiento ha mejorado con el tiempo."
-        else:
-            conclusion = "Se detectan variaciones en el sentimiento del autor."
-    """
-
 
     sentimientos = [f.sentimiento for f in feedbacks]
-
     conclusion = detectar_cambio_de_sentimiento(sentimientos)
 
     return {
@@ -128,3 +171,31 @@ def detectar_cambios_sentimiento(autor: str, db: Session) -> dict:
         "conclusion": conclusion
     }
 
+
+def filtrar_feedbacks(
+    db: Session,
+    autor: Optional[str] = None,
+    desde: Optional[date] = None,
+    hasta: Optional[date] = None,
+    sentimiento: Optional[str] = None,
+    urgencia: Optional[str] = None
+) -> List[Feedback]:
+    """
+    Devuelve feedbacks filtrados según parámetros opcionales.
+    """
+    query = db.query(Feedback)
+
+    if autor:
+        query = query.filter(Feedback.autor.ilike(f"%{autor}%"))
+    if desde:
+        desde_dt = datetime.combine(desde, time.min)
+        query = query.filter(Feedback.fecha >= desde_dt)
+    if hasta:
+        hasta_dt = datetime.combine(hasta, time.max)
+        query = query.filter(Feedback.fecha <= hasta_dt)
+    if sentimiento:
+        query = query.filter(Feedback.sentimiento == sentimiento)
+    if urgencia:
+        query = query.filter(Feedback.urgencia == urgencia)
+
+    return query.order_by(Feedback.fecha.desc()).all()
